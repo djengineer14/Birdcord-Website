@@ -1,0 +1,785 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🐦 Birdcord</title>
+<style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+        font-family: 'Segoe UI', sans-serif;
+        background: #1a1a2e;
+        color: #fff;
+        height: 100vh;
+        overflow: hidden;
+    }
+
+    /* ═══ LOGIN SCREEN ═══ */
+    #loginScreen {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 100vh;
+        background: linear-gradient(135deg, #1a1a2e, #16213e, #0f3460);
+    }
+
+    #loginScreen .logo {
+        font-size: 64px;
+        margin-bottom: 10px;
+        animation: bounce 2s infinite;
+    }
+
+    @keyframes bounce {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-10px); }
+    }
+
+    #loginScreen h1 {
+        font-size: 36px;
+        color: #f5c842;
+        margin-bottom: 5px;
+        letter-spacing: 2px;
+    }
+
+    #loginScreen p {
+        color: #aaa;
+        margin-bottom: 30px;
+        font-size: 14px;
+    }
+
+    .loginBox {
+        background: rgba(255,255,255,0.05);
+        border: 1px solid rgba(255,255,255,0.1);
+        border-radius: 16px;
+        padding: 30px;
+        width: 340px;
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+        backdrop-filter: blur(10px);
+    }
+
+    .loginBox input {
+        background: rgba(255,255,255,0.08);
+        border: 1px solid rgba(255,255,255,0.15);
+        border-radius: 8px;
+        padding: 12px 16px;
+        color: #fff;
+        font-size: 15px;
+        outline: none;
+        transition: border 0.2s;
+    }
+
+    .loginBox input:focus {
+        border-color: #f5c842;
+    }
+
+    .loginBox input::placeholder { color: #888; }
+
+    .btnYellow {
+        background: #f5c842;
+        color: #1a1a2e;
+        border: none;
+        border-radius: 8px;
+        padding: 12px;
+        font-size: 16px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: transform 0.1s, background 0.2s;
+    }
+
+    .btnYellow:hover { background: #ffd966; transform: scale(1.02); }
+    .btnYellow:active { transform: scale(0.98); }
+
+    .devTestBtn {
+        background: transparent;
+        border: 1px solid #444;
+        border-radius: 8px;
+        padding: 10px;
+        color: #888;
+        font-size: 13px;
+        cursor: pointer;
+        transition: border 0.2s, color 0.2s;
+    }
+
+    .devTestBtn:hover { border-color: #f5c842; color: #f5c842; }
+
+    #loginError {
+        color: #ff6b6b;
+        font-size: 13px;
+        text-align: center;
+        display: none;
+    }
+
+    /* ═══ DEV TEST SCREEN ═══ */
+    #devTestScreen {
+        display: none;
+        flex-direction: column;
+        height: 100vh;
+        background: #0d1117;
+    }
+
+    #devTestScreen .devHeader {
+        background: #161b22;
+        border-bottom: 1px solid #30363d;
+        padding: 14px 20px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    #devTestScreen .devHeader h2 {
+        color: #f5c842;
+        font-size: 18px;
+    }
+
+    .devBadge {
+        background: #f5c842;
+        color: #000;
+        font-size: 11px;
+        font-weight: bold;
+        padding: 2px 8px;
+        border-radius: 999px;
+    }
+
+    .devStatus {
+        margin-left: auto;
+        font-size: 13px;
+        color: #888;
+    }
+
+    .devStatus span {
+        display: inline-block;
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: #ff4444;
+        margin-right: 6px;
+    }
+
+    .devStatus.connected span { background: #44ff88; }
+
+    #devMessages {
+        flex: 1;
+        overflow-y: auto;
+        padding: 16px 20px;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    #devMessages::-webkit-scrollbar { width: 6px; }
+    #devMessages::-webkit-scrollbar-track { background: transparent; }
+    #devMessages::-webkit-scrollbar-thumb { background: #333; border-radius: 3px; }
+
+    .devMsg {
+        background: #161b22;
+        border: 1px solid #30363d;
+        border-radius: 8px;
+        padding: 10px 14px;
+        font-size: 14px;
+        font-family: monospace;
+        animation: fadeIn 0.3s ease;
+    }
+
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+
+    .devMsg .msgName { color: #f5c842; font-weight: bold; margin-right: 8px; }
+    .devMsg .msgTime { color: #555; font-size: 11px; margin-left: 8px; }
+    .devMsg.system { border-color: #1f6feb; background: #0d1117; }
+    .devMsg.system .msgName { color: #58a6ff; }
+
+    .devInputRow {
+        display: flex;
+        gap: 10px;
+        padding: 14px 20px;
+        background: #161b22;
+        border-top: 1px solid #30363d;
+    }
+
+    .devInputRow input {
+        flex: 1;
+        background: #0d1117;
+        border: 1px solid #30363d;
+        border-radius: 8px;
+        padding: 10px 14px;
+        color: #fff;
+        font-size: 14px;
+        outline: none;
+        font-family: monospace;
+    }
+
+    .devInputRow input:focus { border-color: #f5c842; }
+
+    .btnSend {
+        background: #f5c842;
+        color: #000;
+        border: none;
+        border-radius: 8px;
+        padding: 10px 20px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: background 0.2s;
+    }
+
+    .btnSend:hover { background: #ffd966; }
+
+    .leaveBtn {
+        background: #ff4444;
+        color: #fff;
+        border: none;
+        border-radius: 8px;
+        padding: 8px 16px;
+        font-size: 13px;
+        cursor: pointer;
+        margin-left: 10px;
+    }
+
+    /* ═══ MAIN APP ═══ */
+    #appScreen {
+        display: none;
+        height: 100vh;
+        flex-direction: column;
+    }
+
+    .appHeader {
+        background: #16213e;
+        border-bottom: 1px solid #0f3460;
+        padding: 12px 20px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .appHeader h2 { color: #f5c842; font-size: 20px; }
+
+    .userCount {
+        background: #0f3460;
+        color: #f5c842;
+        font-size: 12px;
+        padding: 3px 10px;
+        border-radius: 999px;
+    }
+
+    .appBody {
+        flex: 1;
+        display: flex;
+        overflow: hidden;
+    }
+
+    /* Video grid */
+    #videoGrid {
+        flex: 1;
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 10px;
+        padding: 14px;
+        background: #1a1a2e;
+        overflow-y: auto;
+        align-content: start;
+    }
+
+    .videoCard {
+        background: #16213e;
+        border-radius: 12px;
+        overflow: hidden;
+        border: 2px solid #0f3460;
+        position: relative;
+        aspect-ratio: 16/9;
+    }
+
+    .videoCard video {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+    }
+
+    .videoCard .nameTag {
+        position: absolute;
+        bottom: 8px;
+        left: 8px;
+        background: rgba(0,0,0,0.6);
+        color: #f5c842;
+        font-size: 13px;
+        font-weight: bold;
+        padding: 3px 10px;
+        border-radius: 999px;
+        backdrop-filter: blur(4px);
+    }
+
+    .videoCard.local { border-color: #f5c842; }
+
+    /* Chat sidebar */
+    #chatSidebar {
+        width: 280px;
+        background: #16213e;
+        border-left: 1px solid #0f3460;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .chatHeader {
+        padding: 12px 16px;
+        border-bottom: 1px solid #0f3460;
+        font-size: 14px;
+        color: #aaa;
+        font-weight: bold;
+    }
+
+    #chatMessages {
+        flex: 1;
+        overflow-y: auto;
+        padding: 12px;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    #chatMessages::-webkit-scrollbar { width: 4px; }
+    #chatMessages::-webkit-scrollbar-thumb { background: #0f3460; border-radius: 2px; }
+
+    .chatMsg {
+        background: rgba(255,255,255,0.04);
+        border-radius: 8px;
+        padding: 8px 10px;
+        font-size: 13px;
+        animation: fadeIn 0.3s ease;
+    }
+
+    .chatMsg .chatName { color: #f5c842; font-weight: bold; font-size: 12px; }
+    .chatMsg.system { background: transparent; color: #555; font-size: 12px; text-align: center; }
+
+    .chatInputRow {
+        display: flex;
+        gap: 6px;
+        padding: 10px;
+        border-top: 1px solid #0f3460;
+    }
+
+    .chatInputRow input {
+        flex: 1;
+        background: rgba(255,255,255,0.06);
+        border: 1px solid #0f3460;
+        border-radius: 6px;
+        padding: 8px 10px;
+        color: #fff;
+        font-size: 13px;
+        outline: none;
+    }
+
+    .chatInputRow input:focus { border-color: #f5c842; }
+
+    .chatInputRow button {
+        background: #f5c842;
+        color: #000;
+        border: none;
+        border-radius: 6px;
+        padding: 8px 12px;
+        font-weight: bold;
+        cursor: pointer;
+        font-size: 13px;
+    }
+
+    /* Controls bar */
+    .controls {
+        background: #16213e;
+        border-top: 1px solid #0f3460;
+        padding: 12px 20px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        justify-content: center;
+    }
+
+    .ctrlBtn {
+        background: #0f3460;
+        color: #fff;
+        border: none;
+        border-radius: 999px;
+        padding: 10px 20px;
+        font-size: 14px;
+        cursor: pointer;
+        transition: background 0.2s;
+    }
+
+    .ctrlBtn:hover { background: #1a4a8a; }
+    .ctrlBtn.danger { background: #ff4444; }
+    .ctrlBtn.danger:hover { background: #ff6666; }
+    .ctrlBtn.muted { background: #333; color: #888; }
+</style>
+</head>
+<body>
+
+<!-- ═══ LOGIN SCREEN ═══ -->
+<div id="loginScreen">
+    <div class="logo">🐦</div>
+    <h1>Birdcord</h1>
+    <p>Where birds connect</p>
+    <div class="loginBox">
+        <input type="text" id="nameInput" placeholder="Your name (e.g. Sunny's Owner)" maxlength="24" />
+        <input type="password" id="passInput" placeholder="Password" />
+        <div id="loginError">❌ Wrong password!</div>
+        <button class="btnYellow" onclick="joinMain()">🐦 Join Birdcord</button>
+        <button class="devTestBtn" onclick="showDevTest()">🛠 Dev Test Mode</button>
+    </div>
+</div>
+
+<!-- ═══ DEV TEST SCREEN ═══ -->
+<div id="devTestScreen">
+    <div class="devHeader">
+        <span>🛠</span>
+        <h2>Birdcord Dev Test</h2>
+        <span class="devBadge">DEV</span>
+        <div class="devStatus" id="devStatus">
+            <span></span> Disconnected
+        </div>
+        <button class="leaveBtn" onclick="leaveDevTest()">✕ Leave</button>
+    </div>
+    <div id="devMessages"></div>
+    <div class="devInputRow">
+        <input type="text" id="devChatInput" placeholder="Type a message..." onkeydown="if(event.key==='Enter') sendDevMsg()" />
+        <button class="btnSend" onclick="sendDevMsg()">Send</button>
+    </div>
+</div>
+
+<!-- ═══ MAIN APP ═══ -->
+<div id="appScreen">
+    <div class="appHeader">
+        <span>🐦</span>
+        <h2>Birdcord</h2>
+        <span class="userCount" id="userCount">1 bird online</span>
+    </div>
+    <div class="appBody">
+        <div id="videoGrid"></div>
+        <div id="chatSidebar">
+            <div class="chatHeader">💬 Chat</div>
+            <div id="chatMessages"></div>
+            <div class="chatInputRow">
+                <input type="text" id="chatInput" placeholder="Say something..." onkeydown="if(event.key==='Enter') sendChat()" />
+                <button onclick="sendChat()">➤</button>
+            </div>
+        </div>
+    </div>
+    <div class="controls">
+        <button class="ctrlBtn" id="muteBtn" onclick="toggleMute()">🎤 Mute</button>
+        <button class="ctrlBtn" id="camBtn" onclick="toggleCam()">📷 Cam Off</button>
+        <button class="ctrlBtn danger" onclick="leaveCall()">📴 Leave</button>
+    </div>
+</div>
+
+<script>
+const SERVER_URL = "wss://birdcord-server.onrender.com";
+const PASSWORD = "coolahhchattyapp2026"; // ← same password as server.js
+const DEV_PASSWORD = "dev_test2014";
+
+let ws = null;
+let myId = null;
+let myName = "";
+let localStream = null;
+let peers = {};
+let muted = false;
+let camOff = false;
+
+// ═══ LOGIN ═══
+function joinMain() {
+    const name = document.getElementById("nameInput").value.trim();
+    const pass = document.getElementById("passInput").value;
+    const err = document.getElementById("loginError");
+
+    if (!name) { err.style.display = "block"; err.textContent = "❌ Enter your name!"; return; }
+    if (pass !== PASSWORD) { err.style.display = "block"; err.textContent = "❌ Wrong password!"; return; }
+
+    err.style.display = "none";
+    myName = name;
+    startApp();
+}
+
+function showDevTest() {
+    const pass = document.getElementById("passInput").value;
+    if (pass !== DEV_PASSWORD) {
+        const err = document.getElementById("loginError");
+        err.style.display = "block";
+        err.textContent = "❌ Wrong dev code!";
+        return;
+    }
+    myName = document.getElementById("nameInput").value.trim() || "DevUser";
+    document.getElementById("loginScreen").style.display = "none";
+    document.getElementById("devTestScreen").style.display = "flex";
+    connectDevTest();
+}
+
+// ═══ DEV TEST ═══
+function connectDevTest() {
+    ws = new WebSocket(SERVER_URL);
+
+    ws.onopen = () => {
+        ws.send(JSON.stringify({ type: "auth", password: DEV_PASSWORD, name: myName + " [DEV]" }));
+    };
+
+    ws.onmessage = (e) => {
+        const msg = JSON.parse(e.data);
+
+        if (msg.type === "auth") {
+            if (msg.success) {
+                myId = msg.userId;
+                const st = document.getElementById("devStatus");
+                st.className = "devStatus connected";
+                st.innerHTML = '<span></span> Connected as ' + myName;
+                addDevMsg("SYSTEM", "✅ Connected to Birdcord server! Send a message to test.");
+            } else {
+                addDevMsg("SYSTEM", "❌ Auth failed: " + msg.message);
+            }
+            return;
+        }
+
+        if (msg.type === "chat") {
+            addDevMsg(msg.name, msg.message);
+        }
+
+        if (msg.type === "user-joined") {
+            addDevMsg("SYSTEM", "🐦 " + msg.name + " joined! (" + msg.userCount + " online)");
+        }
+
+        if (msg.type === "user-left") {
+            addDevMsg("SYSTEM", "👋 " + msg.name + " left. (" + msg.userCount + " online)");
+        }
+    };
+
+    ws.onclose = () => {
+        const st = document.getElementById("devStatus");
+        st.className = "devStatus";
+        st.innerHTML = '<span></span> Disconnected';
+        addDevMsg("SYSTEM", "❌ Disconnected from server.");
+    };
+
+    ws.onerror = () => {
+        addDevMsg("SYSTEM", "❌ Connection error! Is the server running?");
+    };
+}
+
+function addDevMsg(name, text) {
+    const container = document.getElementById("devMessages");
+    const div = document.createElement("div");
+    div.className = name === "SYSTEM" ? "devMsg system" : "devMsg";
+
+    const time = new Date().toLocaleTimeString();
+    div.innerHTML = `<span class="msgName">${name === "SYSTEM" ? "SYSTEM" : name}</span>${text}<span class="msgTime">${time}</span>`;
+    container.appendChild(div);
+    container.scrollTop = container.scrollHeight;
+
+    // Delete after 5 minutes
+    setTimeout(() => {
+        if (div.parentNode) div.parentNode.removeChild(div);
+    }, 5 * 60 * 1000);
+}
+
+function sendDevMsg() {
+    const input = document.getElementById("devChatInput");
+    const text = input.value.trim();
+    if (!text || !ws || ws.readyState !== 1) return;
+    ws.send(JSON.stringify({ type: "chat", message: text }));
+    addDevMsg("You", text);
+    input.value = "";
+}
+
+function leaveDevTest() {
+    if (ws) ws.close();
+    document.getElementById("devTestScreen").style.display = "none";
+    document.getElementById("loginScreen").style.display = "flex";
+}
+
+// ═══ MAIN APP ═══
+async function startApp() {
+    document.getElementById("loginScreen").style.display = "none";
+    document.getElementById("appScreen").style.display = "flex";
+
+    // Get camera + mic
+    try {
+        localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+    } catch {
+        localStream = await navigator.mediaDevices.getUserMedia({ video: false, audio: true });
+    }
+
+    // Add local video
+    addVideoCard("local", myName + " (You)", localStream, true);
+
+    // Connect WebSocket
+    ws = new WebSocket(SERVER_URL);
+
+    ws.onopen = () => {
+        ws.send(JSON.stringify({ type: "auth", password: PASSWORD, name: myName }));
+    };
+
+    ws.onmessage = async (e) => {
+        const msg = JSON.parse(e.data);
+
+        if (msg.type === "auth") {
+            if (!msg.success) { alert("Wrong password!"); leaveCall(); return; }
+            myId = msg.userId;
+            return;
+        }
+
+        if (msg.type === "user-list") {
+            for (const user of msg.users) {
+                await createPeer(user.userId, user.name, true);
+            }
+            return;
+        }
+
+        if (msg.type === "user-joined") {
+            addChatMsg("🐦 " + msg.name + " joined!", true);
+            updateCount(msg.userCount);
+            return;
+        }
+
+        if (msg.type === "user-left") {
+            addChatMsg("👋 " + msg.name + " left.", true);
+            updateCount(msg.userCount);
+            removeVideoCard(msg.userId);
+            if (peers[msg.userId]) {
+                peers[msg.userId].close();
+                delete peers[msg.userId];
+            }
+            return;
+        }
+
+        if (msg.type === "offer") {
+            await handleOffer(msg);
+            return;
+        }
+
+        if (msg.type === "answer") {
+            if (peers[msg.fromId]) await peers[msg.fromId].setRemoteDescription(msg.sdp);
+            return;
+        }
+
+        if (msg.type === "ice-candidate") {
+            if (peers[msg.fromId]) await peers[msg.fromId].addIceCandidate(msg.candidate);
+            return;
+        }
+
+        if (msg.type === "chat") {
+            addChatMsg(msg.name + ": " + msg.message, false);
+            return;
+        }
+    };
+}
+
+async function createPeer(targetId, targetName, initiator) {
+    const pc = new RTCPeerConnection({ iceServers: [{ urls: "stun:stun.l.google.com:19302" }] });
+    peers[targetId] = pc;
+
+    localStream.getTracks().forEach(track => pc.addTrack(track, localStream));
+
+    pc.ontrack = (e) => {
+        addVideoCard(targetId, targetName, e.streams[0], false);
+    };
+
+    pc.onicecandidate = (e) => {
+        if (e.candidate) {
+            ws.send(JSON.stringify({ type: "ice-candidate", targetId, candidate: e.candidate }));
+        }
+    };
+
+    if (initiator) {
+        const offer = await pc.createOffer();
+        await pc.setLocalDescription(offer);
+        ws.send(JSON.stringify({ type: "offer", targetId, sdp: pc.localDescription }));
+    }
+
+    return pc;
+}
+
+async function handleOffer(msg) {
+    const pc = await createPeer(msg.fromId, "Bird " + msg.fromId, false);
+    await pc.setRemoteDescription(msg.sdp);
+    const answer = await pc.createAnswer();
+    await pc.setLocalDescription(answer);
+    ws.send(JSON.stringify({ type: "answer", targetId: msg.fromId, sdp: pc.localDescription }));
+}
+
+function addVideoCard(id, name, stream, isLocal) {
+    const grid = document.getElementById("videoGrid");
+    const existing = document.getElementById("vid-" + id);
+    if (existing) return;
+
+    const card = document.createElement("div");
+    card.className = "videoCard" + (isLocal ? " local" : "");
+    card.id = "vid-" + id;
+
+    const video = document.createElement("video");
+    video.autoplay = true;
+    video.playsInline = true;
+    if (isLocal) video.muted = true;
+    video.srcObject = stream;
+
+    const tag = document.createElement("div");
+    tag.className = "nameTag";
+    tag.textContent = name;
+
+    card.appendChild(video);
+    card.appendChild(tag);
+    grid.appendChild(card);
+}
+
+function removeVideoCard(id) {
+    const card = document.getElementById("vid-" + id);
+    if (card) card.remove();
+}
+
+function addChatMsg(text, isSystem) {
+    const container = document.getElementById("chatMessages");
+    const div = document.createElement("div");
+    div.className = isSystem ? "chatMsg system" : "chatMsg";
+    div.textContent = text;
+    container.appendChild(div);
+    container.scrollTop = container.scrollHeight;
+
+    // Delete after 5 minutes
+    setTimeout(() => {
+        if (div.parentNode) div.parentNode.removeChild(div);
+    }, 5 * 60 * 1000);
+}
+
+function sendChat() {
+    const input = document.getElementById("chatInput");
+    const text = input.value.trim();
+    if (!text || !ws || ws.readyState !== 1) return;
+    ws.send(JSON.stringify({ type: "chat", message: text }));
+    addChatMsg("You: " + text, false);
+    input.value = "";
+}
+
+function updateCount(n) {
+    document.getElementById("userCount").textContent = n + (n === 1 ? " bird" : " birds") + " online";
+}
+
+function toggleMute() {
+    muted = !muted;
+    localStream.getAudioTracks().forEach(t => t.enabled = !muted);
+    document.getElementById("muteBtn").textContent = muted ? "🔇 Unmute" : "🎤 Mute";
+    document.getElementById("muteBtn").className = muted ? "ctrlBtn muted" : "ctrlBtn";
+}
+
+function toggleCam() {
+    camOff = !camOff;
+    localStream.getVideoTracks().forEach(t => t.enabled = !camOff);
+    document.getElementById("camBtn").textContent = camOff ? "📷 Cam On" : "📷 Cam Off";
+    document.getElementById("camBtn").className = camOff ? "ctrlBtn muted" : "ctrlBtn";
+}
+
+function leaveCall() {
+    if (ws) ws.close();
+    if (localStream) localStream.getTracks().forEach(t => t.stop());
+    document.getElementById("appScreen").style.display = "none";
+    document.getElementById("loginScreen").style.display = "flex";
+    document.getElementById("videoGrid").innerHTML = "";
+    document.getElementById("chatMessages").innerHTML = "";
+    peers = {};
+}
+</script>
+</body>
+</html>
