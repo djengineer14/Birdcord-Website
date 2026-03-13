@@ -766,21 +766,30 @@ function esc(t) { return t.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>
 
 // ── MODES ─────────────────────────────────────────
 async function switchMode(mode) {
-    if (mode===currentMode) return;
+    if (mode === currentMode) return;
+
+    if (mode === "voice" || mode === "camera") {
+        const what = mode === "voice" ? "microphone" : "camera and microphone";
+        const icon = mode === "voice" ? "🎤" : "📷";
+        const ok = confirm(`${icon} Birdcord needs access to your ${what}.\n\nClick OK to allow access.`);
+        if (!ok) return;
+    }
+
     if (localStream) { localStream.getTracks().forEach(t=>t.stop()); localStream=null; }
     for (const id in peers) { peers[id].close(); } peers={};
     removeVideoCard("local"); setMode(mode);
     if (ws) ws.send(JSON.stringify({type:"mode",mode}));
+
     if (mode==="voice") {
         try { localStream=await navigator.mediaDevices.getUserMedia({audio:true,video:false}); }
-        catch { addSys("Could not access microphone!"); setMode("text"); return; }
+        catch { addSys("❌ Microphone access denied! Please allow it in your browser settings."); setMode("text"); return; }
         addVoiceAvatar("local",myUsername+" (You)");
         for (const el of document.querySelectorAll(".voice-avatar:not([data-id='local'])"))
             await createPeer(parseInt(el.dataset.id),el.querySelector(".av-name").textContent,true);
     } else if (mode==="camera") {
         try { localStream=await navigator.mediaDevices.getUserMedia({audio:true,video:true}); }
         catch { try { localStream=await navigator.mediaDevices.getUserMedia({audio:true,video:false}); }
-                catch { addSys("Could not access camera/mic!"); setMode("text"); return; } }
+                catch { addSys("❌ Camera/mic access denied! Please allow it in your browser settings."); setMode("text"); return; } }
         addVideoCard("local",myUsername+" (You)",localStream,true);
         for (const el of document.querySelectorAll(".voice-avatar:not([data-id='local'])"))
             await createPeer(parseInt(el.dataset.id),el.querySelector(".av-name").textContent,true);
