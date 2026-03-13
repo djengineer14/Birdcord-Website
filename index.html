@@ -15,8 +15,8 @@
         overflow: hidden;
     }
 
-    /* ═══ LOGIN SCREEN ═══ */
-    #loginScreen {
+    /* ═══ AUTH SCREEN ═══ */
+    #authScreen {
         display: flex;
         flex-direction: column;
         align-items: center;
@@ -25,7 +25,7 @@
         background: linear-gradient(135deg, #1a1a2e, #16213e, #0f3460);
     }
 
-    #loginScreen .logo {
+    .logo {
         font-size: 64px;
         margin-bottom: 10px;
         animation: bounce 2s infinite;
@@ -36,20 +36,20 @@
         50% { transform: translateY(-10px); }
     }
 
-    #loginScreen h1 {
+    #authScreen h1 {
         font-size: 36px;
         color: #f5c842;
         margin-bottom: 5px;
         letter-spacing: 2px;
     }
 
-    #loginScreen p {
+    #authScreen p {
         color: #aaa;
         margin-bottom: 30px;
         font-size: 14px;
     }
 
-    .loginBox {
+    .authBox {
         background: rgba(255,255,255,0.05);
         border: 1px solid rgba(255,255,255,0.1);
         border-radius: 16px;
@@ -57,11 +57,36 @@
         width: 340px;
         display: flex;
         flex-direction: column;
-        gap: 14px;
+        gap: 12px;
         backdrop-filter: blur(10px);
     }
 
-    .loginBox input {
+    .tabRow {
+        display: flex;
+        gap: 8px;
+        margin-bottom: 4px;
+    }
+
+    .tabBtn {
+        flex: 1;
+        background: rgba(255,255,255,0.05);
+        border: 1px solid rgba(255,255,255,0.1);
+        border-radius: 8px;
+        padding: 8px;
+        color: #888;
+        font-size: 14px;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .tabBtn.active {
+        background: #f5c842;
+        color: #1a1a2e;
+        font-weight: bold;
+        border-color: #f5c842;
+    }
+
+    .authBox input {
         background: rgba(255,255,255,0.08);
         border: 1px solid rgba(255,255,255,0.15);
         border-radius: 8px;
@@ -72,11 +97,8 @@
         transition: border 0.2s;
     }
 
-    .loginBox input:focus {
-        border-color: #f5c842;
-    }
-
-    .loginBox input::placeholder { color: #888; }
+    .authBox input:focus { border-color: #f5c842; }
+    .authBox input::placeholder { color: #888; }
 
     .btnYellow {
         background: #f5c842;
@@ -106,11 +128,28 @@
 
     .devTestBtn:hover { border-color: #f5c842; color: #f5c842; }
 
-    #loginError {
+    #authError {
         color: #ff6b6b;
         font-size: 13px;
         text-align: center;
         display: none;
+    }
+
+    #authSuccess {
+        color: #44ff88;
+        font-size: 13px;
+        text-align: center;
+        display: none;
+    }
+
+    /* ═══ ROOM PASSWORD SCREEN ═══ */
+    #roomScreen {
+        display: none;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 100vh;
+        background: linear-gradient(135deg, #1a1a2e, #16213e, #0f3460);
     }
 
     /* ═══ DEV TEST SCREEN ═══ */
@@ -130,10 +169,7 @@
         gap: 10px;
     }
 
-    #devTestScreen .devHeader h2 {
-        color: #f5c842;
-        font-size: 18px;
-    }
+    #devTestScreen .devHeader h2 { color: #f5c842; font-size: 18px; }
 
     .devBadge {
         background: #f5c842;
@@ -171,7 +207,6 @@
     }
 
     #devMessages::-webkit-scrollbar { width: 6px; }
-    #devMessages::-webkit-scrollbar-track { background: transparent; }
     #devMessages::-webkit-scrollbar-thumb { background: #333; border-radius: 3px; }
 
     .devMsg {
@@ -184,7 +219,7 @@
         animation: fadeIn 0.3s ease;
     }
 
-    @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; } }
 
     .devMsg .msgName { color: #f5c842; font-weight: bold; margin-right: 8px; }
     .devMsg .msgTime { color: #555; font-size: 11px; margin-left: 8px; }
@@ -221,10 +256,7 @@
         padding: 10px 20px;
         font-weight: bold;
         cursor: pointer;
-        transition: background 0.2s;
     }
-
-    .btnSend:hover { background: #ffd966; }
 
     .leaveBtn {
         background: #ff4444;
@@ -269,7 +301,6 @@
         overflow: hidden;
     }
 
-    /* Video grid */
     #videoGrid {
         flex: 1;
         display: grid;
@@ -307,12 +338,10 @@
         font-weight: bold;
         padding: 3px 10px;
         border-radius: 999px;
-        backdrop-filter: blur(4px);
     }
 
     .videoCard.local { border-color: #f5c842; }
 
-    /* Chat sidebar */
     #chatSidebar {
         width: 280px;
         background: #16213e;
@@ -349,7 +378,6 @@
         animation: fadeIn 0.3s ease;
     }
 
-    .chatMsg .chatName { color: #f5c842; font-weight: bold; font-size: 12px; }
     .chatMsg.system { background: transparent; color: #555; font-size: 12px; text-align: center; }
 
     .chatInputRow {
@@ -380,10 +408,8 @@
         padding: 8px 12px;
         font-weight: bold;
         cursor: pointer;
-        font-size: 13px;
     }
 
-    /* Controls bar */
     .controls {
         background: #16213e;
         border-top: 1px solid #0f3460;
@@ -413,17 +439,35 @@
 </head>
 <body>
 
-<!-- ═══ LOGIN SCREEN ═══ -->
-<div id="loginScreen">
+<!-- ═══ AUTH SCREEN ═══ -->
+<div id="authScreen">
     <div class="logo">🐦</div>
     <h1>Birdcord</h1>
     <p>Where birds connect</p>
-    <div class="loginBox">
-        <input type="text" id="nameInput" placeholder="Your name (e.g. Sunny's Owner)" maxlength="24" />
-        <input type="password" id="passInput" placeholder="Password" />
-        <div id="loginError">❌ Wrong password!</div>
-        <button class="btnYellow" onclick="joinMain()">🐦 Join Birdcord</button>
+    <div class="authBox">
+        <div class="tabRow">
+            <button class="tabBtn active" id="loginTab" onclick="switchTab('login')">🔑 Log In</button>
+            <button class="tabBtn" id="registerTab" onclick="switchTab('register')">✨ Create Account</button>
+        </div>
+        <input type="text" id="authUsername" placeholder="Username" maxlength="24" />
+        <input type="password" id="authPassword" placeholder="Password" />
+        <div id="authError"></div>
+        <div id="authSuccess"></div>
+        <button class="btnYellow" id="authSubmitBtn" onclick="handleAuth()">🐦 Log In</button>
         <button class="devTestBtn" onclick="showDevTest()">🛠 Dev Test Mode</button>
+    </div>
+</div>
+
+<!-- ═══ ROOM PASSWORD SCREEN ═══ -->
+<div id="roomScreen">
+    <div class="logo">🐦</div>
+    <h1 style="color:#f5c842; font-size:28px; margin-bottom:8px;">Join Room</h1>
+    <p style="color:#aaa; margin-bottom:24px;">Enter the room password to join</p>
+    <div class="authBox">
+        <input type="password" id="roomPassInput" placeholder="Room password" />
+        <div id="roomError" style="color:#ff6b6b; font-size:13px; text-align:center; display:none;"></div>
+        <button class="btnYellow" onclick="joinRoom()">🐦 Join Birdcord</button>
+        <button class="devTestBtn" onclick="backToAuth()">← Back</button>
     </div>
 </div>
 
@@ -471,8 +515,8 @@
 </div>
 
 <script>
-const SERVER_URL = "wss://birdcord-server.onrender.com";
-const PASSWORD = "coolahhchattyapp2026"; // ← same password as server.js
+const SERVER_HTTP = "https://birdcord-server.onrender.com";
+const SERVER_WS = "wss://birdcord-server.onrender.com";
 const DEV_PASSWORD = "dev_test2014";
 
 let ws = null;
@@ -482,38 +526,118 @@ let localStream = null;
 let peers = {};
 let muted = false;
 let camOff = false;
+let currentTab = "login";
+let roomPassword = "";
 
-// ═══ LOGIN ═══
-function joinMain() {
-    const name = document.getElementById("nameInput").value.trim();
-    const pass = document.getElementById("passInput").value;
-    const err = document.getElementById("loginError");
+// ═══ TAB SWITCHING ═══
+function switchTab(tab) {
+    currentTab = tab;
+    document.getElementById("loginTab").className = tab === "login" ? "tabBtn active" : "tabBtn";
+    document.getElementById("registerTab").className = tab === "register" ? "tabBtn active" : "tabBtn";
+    document.getElementById("authSubmitBtn").textContent = tab === "login" ? "🐦 Log In" : "✨ Create Account";
+    hideAuthMessages();
+}
 
-    if (!name) { err.style.display = "block"; err.textContent = "❌ Enter your name!"; return; }
-    if (pass !== PASSWORD) { err.style.display = "block"; err.textContent = "❌ Wrong password!"; return; }
-
+function hideAuthMessages() {
+    const err = document.getElementById("authError");
+    const suc = document.getElementById("authSuccess");
     err.style.display = "none";
-    myName = name;
+    suc.style.display = "none";
+}
+
+function showAuthError(msg) {
+    const err = document.getElementById("authError");
+    err.textContent = "❌ " + msg;
+    err.style.display = "block";
+    document.getElementById("authSuccess").style.display = "none";
+}
+
+function showAuthSuccess(msg) {
+    const suc = document.getElementById("authSuccess");
+    suc.textContent = "✅ " + msg;
+    suc.style.display = "block";
+    document.getElementById("authError").style.display = "none";
+}
+
+// ═══ AUTH ═══
+async function handleAuth() {
+    const username = document.getElementById("authUsername").value.trim();
+    const password = document.getElementById("authPassword").value;
+
+    if (!username || !password) {
+        showAuthError("Fill in all fields!");
+        return;
+    }
+
+    const btn = document.getElementById("authSubmitBtn");
+    btn.textContent = "⏳ Please wait...";
+    btn.disabled = true;
+
+    try {
+        const endpoint = currentTab === "login" ? "/login" : "/register";
+        const res = await fetch(SERVER_HTTP + endpoint, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ username, password })
+        });
+        const data = await res.json();
+
+        if (data.success) {
+            if (currentTab === "register") {
+                showAuthSuccess(data.message + " Now log in!");
+                switchTab("login");
+            } else {
+                myName = data.username;
+                showRoomScreen();
+            }
+        } else {
+            showAuthError(data.message);
+        }
+    } catch {
+        showAuthError("Could not connect to server!");
+    }
+
+    btn.textContent = currentTab === "login" ? "🐦 Log In" : "✨ Create Account";
+    btn.disabled = false;
+}
+
+function showRoomScreen() {
+    document.getElementById("authScreen").style.display = "none";
+    document.getElementById("roomScreen").style.display = "flex";
+}
+
+function backToAuth() {
+    document.getElementById("roomScreen").style.display = "none";
+    document.getElementById("authScreen").style.display = "flex";
+}
+
+function joinRoom() {
+    const pass = document.getElementById("roomPassInput").value;
+    if (!pass) {
+        document.getElementById("roomError").style.display = "block";
+        document.getElementById("roomError").textContent = "Enter the room password!";
+        return;
+    }
+    roomPassword = pass;
+    document.getElementById("roomError").style.display = "none";
     startApp();
 }
 
+// ═══ DEV TEST ═══
 function showDevTest() {
-    const pass = document.getElementById("passInput").value;
+    const pass = document.getElementById("authPassword").value;
     if (pass !== DEV_PASSWORD) {
-        const err = document.getElementById("loginError");
-        err.style.display = "block";
-        err.textContent = "❌ Wrong dev code!";
+        showAuthError("Wrong dev code! Use dev_test2014 as password.");
         return;
     }
-    myName = document.getElementById("nameInput").value.trim() || "DevUser";
-    document.getElementById("loginScreen").style.display = "none";
+    myName = document.getElementById("authUsername").value.trim() || "DevUser";
+    document.getElementById("authScreen").style.display = "none";
     document.getElementById("devTestScreen").style.display = "flex";
     connectDevTest();
 }
 
-// ═══ DEV TEST ═══
 function connectDevTest() {
-    ws = new WebSocket(SERVER_URL);
+    ws = new WebSocket(SERVER_WS);
 
     ws.onopen = () => {
         ws.send(JSON.stringify({ type: "auth", password: DEV_PASSWORD, name: myName + " [DEV]" }));
@@ -521,31 +645,21 @@ function connectDevTest() {
 
     ws.onmessage = (e) => {
         const msg = JSON.parse(e.data);
-
         if (msg.type === "auth") {
             if (msg.success) {
                 myId = msg.userId;
                 const st = document.getElementById("devStatus");
                 st.className = "devStatus connected";
                 st.innerHTML = '<span></span> Connected as ' + myName;
-                addDevMsg("SYSTEM", "✅ Connected to Birdcord server! Send a message to test.");
+                addDevMsg("SYSTEM", "✅ Connected! Send a message to test.");
             } else {
                 addDevMsg("SYSTEM", "❌ Auth failed: " + msg.message);
             }
             return;
         }
-
-        if (msg.type === "chat") {
-            addDevMsg(msg.name, msg.message);
-        }
-
-        if (msg.type === "user-joined") {
-            addDevMsg("SYSTEM", "🐦 " + msg.name + " joined! (" + msg.userCount + " online)");
-        }
-
-        if (msg.type === "user-left") {
-            addDevMsg("SYSTEM", "👋 " + msg.name + " left. (" + msg.userCount + " online)");
-        }
+        if (msg.type === "chat") addDevMsg(msg.name, msg.message);
+        if (msg.type === "user-joined") addDevMsg("SYSTEM", "🐦 " + msg.name + " joined! (" + msg.userCount + " online)");
+        if (msg.type === "user-left") addDevMsg("SYSTEM", "👋 " + msg.name + " left. (" + msg.userCount + " online)");
     };
 
     ws.onclose = () => {
@@ -556,7 +670,7 @@ function connectDevTest() {
     };
 
     ws.onerror = () => {
-        addDevMsg("SYSTEM", "❌ Connection error! Is the server running?");
+        addDevMsg("SYSTEM", "❌ Connection error!");
     };
 }
 
@@ -564,16 +678,11 @@ function addDevMsg(name, text) {
     const container = document.getElementById("devMessages");
     const div = document.createElement("div");
     div.className = name === "SYSTEM" ? "devMsg system" : "devMsg";
-
     const time = new Date().toLocaleTimeString();
     div.innerHTML = `<span class="msgName">${name === "SYSTEM" ? "SYSTEM" : name}</span>${text}<span class="msgTime">${time}</span>`;
     container.appendChild(div);
     container.scrollTop = container.scrollHeight;
-
-    // Delete after 5 minutes
-    setTimeout(() => {
-        if (div.parentNode) div.parentNode.removeChild(div);
-    }, 5 * 60 * 1000);
+    setTimeout(() => { if (div.parentNode) div.remove(); }, 5 * 60 * 1000);
 }
 
 function sendDevMsg() {
@@ -588,79 +697,67 @@ function sendDevMsg() {
 function leaveDevTest() {
     if (ws) ws.close();
     document.getElementById("devTestScreen").style.display = "none";
-    document.getElementById("loginScreen").style.display = "flex";
+    document.getElementById("authScreen").style.display = "flex";
 }
 
 // ═══ MAIN APP ═══
 async function startApp() {
-    document.getElementById("loginScreen").style.display = "none";
+    document.getElementById("roomScreen").style.display = "none";
     document.getElementById("appScreen").style.display = "flex";
 
-    // Get camera + mic
     try {
         localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
     } catch {
-        localStream = await navigator.mediaDevices.getUserMedia({ video: false, audio: true });
+        try {
+            localStream = await navigator.mediaDevices.getUserMedia({ video: false, audio: true });
+        } catch {
+            alert("Could not access camera or microphone!");
+            leaveCall();
+            return;
+        }
     }
 
-    // Add local video
     addVideoCard("local", myName + " (You)", localStream, true);
 
-    // Connect WebSocket
-    ws = new WebSocket(SERVER_URL);
+    ws = new WebSocket(SERVER_WS);
 
     ws.onopen = () => {
-        ws.send(JSON.stringify({ type: "auth", password: PASSWORD, name: myName }));
+        ws.send(JSON.stringify({ type: "auth", password: roomPassword, name: myName }));
     };
 
     ws.onmessage = async (e) => {
         const msg = JSON.parse(e.data);
 
         if (msg.type === "auth") {
-            if (!msg.success) { alert("Wrong password!"); leaveCall(); return; }
+            if (!msg.success) { alert("Wrong room password!"); leaveCall(); return; }
             myId = msg.userId;
             return;
         }
-
         if (msg.type === "user-list") {
-            for (const user of msg.users) {
-                await createPeer(user.userId, user.name, true);
-            }
+            for (const user of msg.users) await createPeer(user.userId, user.name, true);
             return;
         }
-
         if (msg.type === "user-joined") {
             addChatMsg("🐦 " + msg.name + " joined!", true);
             updateCount(msg.userCount);
             return;
         }
-
         if (msg.type === "user-left") {
             addChatMsg("👋 " + msg.name + " left.", true);
             updateCount(msg.userCount);
             removeVideoCard(msg.userId);
-            if (peers[msg.userId]) {
-                peers[msg.userId].close();
-                delete peers[msg.userId];
-            }
+            if (peers[msg.userId]) { peers[msg.userId].close(); delete peers[msg.userId]; }
             return;
         }
-
-        if (msg.type === "offer") {
-            await handleOffer(msg);
-            return;
-        }
-
+        if (msg.type === "offer") { await handleOffer(msg); return; }
         if (msg.type === "answer") {
             if (peers[msg.fromId]) await peers[msg.fromId].setRemoteDescription(msg.sdp);
             return;
         }
-
         if (msg.type === "ice-candidate") {
             if (peers[msg.fromId]) await peers[msg.fromId].addIceCandidate(msg.candidate);
             return;
         }
-
         if (msg.type === "chat") {
             addChatMsg(msg.name + ": " + msg.message, false);
             return;
@@ -671,25 +768,16 @@ async function startApp() {
 async function createPeer(targetId, targetName, initiator) {
     const pc = new RTCPeerConnection({ iceServers: [{ urls: "stun:stun.l.google.com:19302" }] });
     peers[targetId] = pc;
-
     localStream.getTracks().forEach(track => pc.addTrack(track, localStream));
-
-    pc.ontrack = (e) => {
-        addVideoCard(targetId, targetName, e.streams[0], false);
-    };
-
+    pc.ontrack = (e) => addVideoCard(targetId, targetName, e.streams[0], false);
     pc.onicecandidate = (e) => {
-        if (e.candidate) {
-            ws.send(JSON.stringify({ type: "ice-candidate", targetId, candidate: e.candidate }));
-        }
+        if (e.candidate) ws.send(JSON.stringify({ type: "ice-candidate", targetId, candidate: e.candidate }));
     };
-
     if (initiator) {
         const offer = await pc.createOffer();
         await pc.setLocalDescription(offer);
         ws.send(JSON.stringify({ type: "offer", targetId, sdp: pc.localDescription }));
     }
-
     return pc;
 }
 
@@ -703,23 +791,18 @@ async function handleOffer(msg) {
 
 function addVideoCard(id, name, stream, isLocal) {
     const grid = document.getElementById("videoGrid");
-    const existing = document.getElementById("vid-" + id);
-    if (existing) return;
-
+    if (document.getElementById("vid-" + id)) return;
     const card = document.createElement("div");
     card.className = "videoCard" + (isLocal ? " local" : "");
     card.id = "vid-" + id;
-
     const video = document.createElement("video");
     video.autoplay = true;
     video.playsInline = true;
     if (isLocal) video.muted = true;
     video.srcObject = stream;
-
     const tag = document.createElement("div");
     tag.className = "nameTag";
     tag.textContent = name;
-
     card.appendChild(video);
     card.appendChild(tag);
     grid.appendChild(card);
@@ -737,11 +820,7 @@ function addChatMsg(text, isSystem) {
     div.textContent = text;
     container.appendChild(div);
     container.scrollTop = container.scrollHeight;
-
-    // Delete after 5 minutes
-    setTimeout(() => {
-        if (div.parentNode) div.parentNode.removeChild(div);
-    }, 5 * 60 * 1000);
+    setTimeout(() => { if (div.parentNode) div.remove(); }, 5 * 60 * 1000);
 }
 
 function sendChat() {
@@ -775,10 +854,11 @@ function leaveCall() {
     if (ws) ws.close();
     if (localStream) localStream.getTracks().forEach(t => t.stop());
     document.getElementById("appScreen").style.display = "none";
-    document.getElementById("loginScreen").style.display = "flex";
+    document.getElementById("authScreen").style.display = "flex";
     document.getElementById("videoGrid").innerHTML = "";
     document.getElementById("chatMessages").innerHTML = "";
     peers = {};
+    localStream = null;
 }
 </script>
 </body>
