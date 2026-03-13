@@ -768,13 +768,6 @@ function esc(t) { return t.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>
 async function switchMode(mode) {
     if (mode === currentMode) return;
 
-    if (mode === "voice" || mode === "camera") {
-        const what = mode === "voice" ? "microphone" : "camera and microphone";
-        const icon = mode === "voice" ? "🎤" : "📷";
-        const ok = confirm(`${icon} Birdcord needs access to your ${what}.\n\nClick OK to allow access.`);
-        if (!ok) return;
-    }
-
     if (localStream) { localStream.getTracks().forEach(t=>t.stop()); localStream=null; }
     for (const id in peers) { peers[id].close(); } peers={};
     removeVideoCard("local"); setMode(mode);
