@@ -5,861 +5,484 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>🐦 Birdcord</title>
 <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family:'Segoe UI',sans-serif; background:#1a1a2e; color:#fff; height:100vh; overflow:hidden; }
+.screen { display:none; flex-direction:column; align-items:center; justify-content:center; height:100vh; }
+.screen.active { display:flex; }
 
-    body {
-        font-family: 'Segoe UI', sans-serif;
-        background: #1a1a2e;
-        color: #fff;
-        height: 100vh;
-        overflow: hidden;
-    }
+#connectingScreen { background:linear-gradient(135deg,#1a1a2e,#16213e,#0f3460); }
+.spinner { width:50px; height:50px; border:4px solid rgba(245,200,66,0.2); border-top-color:#f5c842; border-radius:50%; animation:spin 1s linear infinite; margin:20px auto; }
+@keyframes spin { to{transform:rotate(360deg)} }
+@keyframes bounce { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-10px)} }
+@keyframes fadeIn { from{opacity:0;transform:translateY(3px)} to{opacity:1;transform:none} }
 
-    /* ═══ AUTH SCREEN ═══ */
-    #authScreen {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        height: 100vh;
-        background: linear-gradient(135deg, #1a1a2e, #16213e, #0f3460);
-    }
+.logo { font-size:64px; animation:bounce 2s infinite; }
+.title { font-size:36px; color:#f5c842; letter-spacing:2px; margin-bottom:6px; }
+.subtitle { color:#888; font-size:14px; margin-bottom:28px; }
 
-    .logo {
-        font-size: 64px;
-        margin-bottom: 10px;
-        animation: bounce 2s infinite;
-    }
+#downScreen, #trafficScreen { background:#0d1117; text-align:center; padding:24px; }
+.big-icon { font-size:70px; margin-bottom:16px; }
+.down-title { color:#ff4444; font-size:26px; margin-bottom:10px; }
+.traffic-title { color:#f5c842; font-size:22px; margin-bottom:10px; }
+.down-text { color:#888; line-height:1.6; max-width:320px; margin:0 auto 20px; }
 
-    @keyframes bounce {
-        0%, 100% { transform: translateY(0); }
-        50% { transform: translateY(-10px); }
-    }
+.card { background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); border-radius:16px; padding:28px; width:340px; display:flex; flex-direction:column; gap:12px; backdrop-filter:blur(10px); }
 
-    #authScreen h1 {
-        font-size: 36px;
-        color: #f5c842;
-        margin-bottom: 5px;
-        letter-spacing: 2px;
-    }
+input[type="text"], input[type="date"], select {
+    background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.15); border-radius:8px;
+    padding:12px 16px; color:#fff; font-size:15px; outline:none; transition:border 0.2s; width:100%;
+}
+input:focus, select:focus { border-color:#f5c842; }
+input::placeholder { color:#888; }
+select option { background:#1a1a2e; }
 
-    #authScreen p {
-        color: #aaa;
-        margin-bottom: 30px;
-        font-size: 14px;
-    }
+.btn-primary { background:#f5c842; color:#1a1a2e; border:none; border-radius:8px; padding:12px; font-size:16px; font-weight:bold; cursor:pointer; transition:transform 0.1s,background 0.2s; }
+.btn-primary:hover { background:#ffd966; transform:scale(1.02); }
+.btn-primary:active { transform:scale(0.98); }
+.btn-secondary { background:transparent; border:1px solid #444; border-radius:8px; padding:10px; color:#888; font-size:13px; cursor:pointer; transition:border 0.2s,color 0.2s; }
+.btn-secondary:hover { border-color:#f5c842; color:#f5c842; }
+.btn-retry { background:#f5c842; color:#000; border:none; border-radius:8px; padding:12px 24px; font-size:15px; font-weight:bold; cursor:pointer; }
+.btn-retry:hover { background:#ffd966; }
 
-    .authBox {
-        background: rgba(255,255,255,0.05);
-        border: 1px solid rgba(255,255,255,0.1);
-        border-radius: 16px;
-        padding: 30px;
-        width: 340px;
-        display: flex;
-        flex-direction: column;
-        gap: 12px;
-        backdrop-filter: blur(10px);
-    }
+.err { color:#ff6b6b; font-size:13px; text-align:center; display:none; }
 
-    .tabRow {
-        display: flex;
-        gap: 8px;
-        margin-bottom: 4px;
-    }
+#usernameScreen { background:linear-gradient(135deg,#1a1a2e,#16213e,#0f3460); }
+#roomScreen { background:linear-gradient(135deg,#1a1a2e,#16213e,#0f3460); }
+#verifyScreen { background:linear-gradient(135deg,#1a1a2e,#16213e,#0f3460); }
+#verifyScreen .card { width:380px; }
 
-    .tabBtn {
-        flex: 1;
-        background: rgba(255,255,255,0.05);
-        border: 1px solid rgba(255,255,255,0.1);
-        border-radius: 8px;
-        padding: 8px;
-        color: #888;
-        font-size: 14px;
-        cursor: pointer;
-        transition: all 0.2s;
-    }
+.room-grid { display:flex; flex-direction:column; gap:12px; width:360px; }
+.room-card { background:rgba(255,255,255,0.05); border:2px solid rgba(255,255,255,0.1); border-radius:14px; padding:18px 20px; cursor:pointer; transition:border-color 0.2s,transform 0.1s,background 0.2s; display:flex; align-items:center; gap:14px; }
+.room-card:hover { border-color:#f5c842; background:rgba(245,200,66,0.08); transform:scale(1.01); }
+.room-icon { font-size:32px; }
+.room-info h3 { font-size:16px; margin-bottom:4px; }
+.room-info p { color:#888; font-size:12px; }
+.room-badge { margin-left:auto; font-size:11px; font-weight:bold; padding:3px 8px; border-radius:999px; }
+.badge-kids { background:rgba(68,200,255,0.2); color:#44c8ff; }
+.badge-all { background:rgba(68,255,136,0.2); color:#44ff88; }
+.badge-adult { background:rgba(255,68,68,0.2); color:#ff4444; }
 
-    .tabBtn.active {
-        background: #f5c842;
-        color: #1a1a2e;
-        font-weight: bold;
-        border-color: #f5c842;
-    }
+.verify-label { color:#ccc; font-size:13px; }
+.checkbox-row { display:flex; align-items:center; gap:10px; color:#ccc; font-size:14px; }
+.checkbox-row input[type="checkbox"] { width:18px; height:18px; cursor:pointer; accent-color:#f5c842; }
 
-    .authBox input {
-        background: rgba(255,255,255,0.08);
-        border: 1px solid rgba(255,255,255,0.15);
-        border-radius: 8px;
-        padding: 12px 16px;
-        color: #fff;
-        font-size: 15px;
-        outline: none;
-        transition: border 0.2s;
-    }
+#chatScreen { display:none; height:100vh; flex-direction:column; }
+#chatScreen.active { display:flex; }
 
-    .authBox input:focus { border-color: #f5c842; }
-    .authBox input::placeholder { color: #888; }
+.chat-header { background:#16213e; border-bottom:1px solid #0f3460; padding:10px 16px; display:flex; align-items:center; gap:10px; flex-shrink:0; flex-wrap:wrap; }
+.user-count { background:#0f3460; color:#f5c842; font-size:11px; padding:3px 10px; border-radius:999px; }
+.mode-btns { display:flex; gap:6px; margin-left:auto; }
+.mode-btn { background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.1); border-radius:8px; padding:6px 12px; color:#888; font-size:12px; cursor:pointer; transition:all 0.2s; }
+.mode-btn.active { background:#f5c842; color:#000; border-color:#f5c842; font-weight:bold; }
+.mode-btn:hover:not(.active) { border-color:#f5c842; color:#f5c842; }
+.btn-leave { background:#ff4444; color:#fff; border:none; border-radius:8px; padding:6px 14px; font-size:13px; cursor:pointer; }
+.btn-leave:hover { background:#ff6666; }
 
-    .btnYellow {
-        background: #f5c842;
-        color: #1a1a2e;
-        border: none;
-        border-radius: 8px;
-        padding: 12px;
-        font-size: 16px;
-        font-weight: bold;
-        cursor: pointer;
-        transition: transform 0.1s, background 0.2s;
-    }
+.chat-body { flex:1; display:flex; overflow:hidden; }
 
-    .btnYellow:hover { background: #ffd966; transform: scale(1.02); }
-    .btnYellow:active { transform: scale(0.98); }
+#videoGrid { flex:1; display:none; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:8px; padding:10px; background:#1a1a2e; overflow-y:auto; align-content:start; }
+#videoGrid.visible { display:grid; }
+#voiceGrid { flex:1; display:none; flex-wrap:wrap; gap:12px; padding:16px; background:#1a1a2e; overflow-y:auto; align-content:flex-start; justify-content:center; }
+#voiceGrid.visible { display:flex; }
 
-    .devTestBtn {
-        background: transparent;
-        border: 1px solid #444;
-        border-radius: 8px;
-        padding: 10px;
-        color: #888;
-        font-size: 13px;
-        cursor: pointer;
-        transition: border 0.2s, color 0.2s;
-    }
+.voice-avatar { background:#16213e; border:2px solid #0f3460; border-radius:12px; padding:16px 20px; text-align:center; width:120px; }
+.voice-avatar .av-icon { font-size:32px; margin-bottom:6px; }
+.voice-avatar .av-name { font-size:12px; color:#ccc; word-break:break-all; }
 
-    .devTestBtn:hover { border-color: #f5c842; color: #f5c842; }
+.video-card { background:#16213e; border-radius:10px; overflow:hidden; border:2px solid #0f3460; position:relative; aspect-ratio:16/9; }
+.video-card video { width:100%; height:100%; object-fit:cover; display:block; }
+.video-card .name-tag { position:absolute; bottom:6px; left:6px; background:rgba(0,0,0,0.6); color:#f5c842; font-size:12px; font-weight:bold; padding:2px 8px; border-radius:999px; }
+.video-card.local { border-color:#f5c842; }
 
-    #authError {
-        color: #ff6b6b;
-        font-size: 13px;
-        text-align: center;
-        display: none;
-    }
+#chatSidebar { width:300px; background:#16213e; border-left:1px solid #0f3460; display:flex; flex-direction:column; flex-shrink:0; }
+#chatSidebar.full { width:100%; border-left:none; }
+.sidebar-header { padding:10px 14px; border-bottom:1px solid #0f3460; font-size:13px; color:#888; font-weight:bold; }
+#chatMessages { flex:1; overflow-y:auto; padding:10px; display:flex; flex-direction:column; gap:6px; }
+#chatMessages::-webkit-scrollbar { width:4px; }
+#chatMessages::-webkit-scrollbar-thumb { background:#0f3460; border-radius:2px; }
+.chat-msg { background:rgba(255,255,255,0.04); border-radius:8px; padding:7px 10px; font-size:13px; animation:fadeIn 0.3s ease; word-break:break-word; }
+.chat-msg .msg-name { color:#f5c842; font-weight:bold; font-size:12px; display:block; margin-bottom:2px; }
+.chat-msg.mine .msg-name { color:#44c8ff; }
+.chat-msg.system { background:transparent; color:#555; font-size:12px; text-align:center; font-style:italic; }
+.chat-input-row { display:flex; gap:6px; padding:10px; border-top:1px solid #0f3460; }
+.chat-input-row input { flex:1; background:rgba(255,255,255,0.06); border:1px solid #0f3460; border-radius:6px; padding:8px 10px; color:#fff; font-size:13px; outline:none; }
+.chat-input-row input:focus { border-color:#f5c842; }
+.chat-input-row button { background:#f5c842; color:#000; border:none; border-radius:6px; padding:8px 14px; font-weight:bold; cursor:pointer; }
 
-    #authSuccess {
-        color: #44ff88;
-        font-size: 13px;
-        text-align: center;
-        display: none;
-    }
-
-    /* ═══ ROOM PASSWORD SCREEN ═══ */
-    #roomScreen {
-        display: none;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        height: 100vh;
-        background: linear-gradient(135deg, #1a1a2e, #16213e, #0f3460);
-    }
-
-    /* ═══ DEV TEST SCREEN ═══ */
-    #devTestScreen {
-        display: none;
-        flex-direction: column;
-        height: 100vh;
-        background: #0d1117;
-    }
-
-    #devTestScreen .devHeader {
-        background: #161b22;
-        border-bottom: 1px solid #30363d;
-        padding: 14px 20px;
-        display: flex;
-        align-items: center;
-        gap: 10px;
-    }
-
-    #devTestScreen .devHeader h2 { color: #f5c842; font-size: 18px; }
-
-    .devBadge {
-        background: #f5c842;
-        color: #000;
-        font-size: 11px;
-        font-weight: bold;
-        padding: 2px 8px;
-        border-radius: 999px;
-    }
-
-    .devStatus {
-        margin-left: auto;
-        font-size: 13px;
-        color: #888;
-    }
-
-    .devStatus span {
-        display: inline-block;
-        width: 8px;
-        height: 8px;
-        border-radius: 50%;
-        background: #ff4444;
-        margin-right: 6px;
-    }
-
-    .devStatus.connected span { background: #44ff88; }
-
-    #devMessages {
-        flex: 1;
-        overflow-y: auto;
-        padding: 16px 20px;
-        display: flex;
-        flex-direction: column;
-        gap: 8px;
-    }
-
-    #devMessages::-webkit-scrollbar { width: 6px; }
-    #devMessages::-webkit-scrollbar-thumb { background: #333; border-radius: 3px; }
-
-    .devMsg {
-        background: #161b22;
-        border: 1px solid #30363d;
-        border-radius: 8px;
-        padding: 10px 14px;
-        font-size: 14px;
-        font-family: monospace;
-        animation: fadeIn 0.3s ease;
-    }
-
-    @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; } }
-
-    .devMsg .msgName { color: #f5c842; font-weight: bold; margin-right: 8px; }
-    .devMsg .msgTime { color: #555; font-size: 11px; margin-left: 8px; }
-    .devMsg.system { border-color: #1f6feb; background: #0d1117; }
-    .devMsg.system .msgName { color: #58a6ff; }
-
-    .devInputRow {
-        display: flex;
-        gap: 10px;
-        padding: 14px 20px;
-        background: #161b22;
-        border-top: 1px solid #30363d;
-    }
-
-    .devInputRow input {
-        flex: 1;
-        background: #0d1117;
-        border: 1px solid #30363d;
-        border-radius: 8px;
-        padding: 10px 14px;
-        color: #fff;
-        font-size: 14px;
-        outline: none;
-        font-family: monospace;
-    }
-
-    .devInputRow input:focus { border-color: #f5c842; }
-
-    .btnSend {
-        background: #f5c842;
-        color: #000;
-        border: none;
-        border-radius: 8px;
-        padding: 10px 20px;
-        font-weight: bold;
-        cursor: pointer;
-    }
-
-    .leaveBtn {
-        background: #ff4444;
-        color: #fff;
-        border: none;
-        border-radius: 8px;
-        padding: 8px 16px;
-        font-size: 13px;
-        cursor: pointer;
-        margin-left: 10px;
-    }
-
-    /* ═══ MAIN APP ═══ */
-    #appScreen {
-        display: none;
-        height: 100vh;
-        flex-direction: column;
-    }
-
-    .appHeader {
-        background: #16213e;
-        border-bottom: 1px solid #0f3460;
-        padding: 12px 20px;
-        display: flex;
-        align-items: center;
-        gap: 12px;
-    }
-
-    .appHeader h2 { color: #f5c842; font-size: 20px; }
-
-    .userCount {
-        background: #0f3460;
-        color: #f5c842;
-        font-size: 12px;
-        padding: 3px 10px;
-        border-radius: 999px;
-    }
-
-    .appBody {
-        flex: 1;
-        display: flex;
-        overflow: hidden;
-    }
-
-    #videoGrid {
-        flex: 1;
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-        gap: 10px;
-        padding: 14px;
-        background: #1a1a2e;
-        overflow-y: auto;
-        align-content: start;
-    }
-
-    .videoCard {
-        background: #16213e;
-        border-radius: 12px;
-        overflow: hidden;
-        border: 2px solid #0f3460;
-        position: relative;
-        aspect-ratio: 16/9;
-    }
-
-    .videoCard video {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-        display: block;
-    }
-
-    .videoCard .nameTag {
-        position: absolute;
-        bottom: 8px;
-        left: 8px;
-        background: rgba(0,0,0,0.6);
-        color: #f5c842;
-        font-size: 13px;
-        font-weight: bold;
-        padding: 3px 10px;
-        border-radius: 999px;
-    }
-
-    .videoCard.local { border-color: #f5c842; }
-
-    #chatSidebar {
-        width: 280px;
-        background: #16213e;
-        border-left: 1px solid #0f3460;
-        display: flex;
-        flex-direction: column;
-    }
-
-    .chatHeader {
-        padding: 12px 16px;
-        border-bottom: 1px solid #0f3460;
-        font-size: 14px;
-        color: #aaa;
-        font-weight: bold;
-    }
-
-    #chatMessages {
-        flex: 1;
-        overflow-y: auto;
-        padding: 12px;
-        display: flex;
-        flex-direction: column;
-        gap: 8px;
-    }
-
-    #chatMessages::-webkit-scrollbar { width: 4px; }
-    #chatMessages::-webkit-scrollbar-thumb { background: #0f3460; border-radius: 2px; }
-
-    .chatMsg {
-        background: rgba(255,255,255,0.04);
-        border-radius: 8px;
-        padding: 8px 10px;
-        font-size: 13px;
-        animation: fadeIn 0.3s ease;
-    }
-
-    .chatMsg.system { background: transparent; color: #555; font-size: 12px; text-align: center; }
-
-    .chatInputRow {
-        display: flex;
-        gap: 6px;
-        padding: 10px;
-        border-top: 1px solid #0f3460;
-    }
-
-    .chatInputRow input {
-        flex: 1;
-        background: rgba(255,255,255,0.06);
-        border: 1px solid #0f3460;
-        border-radius: 6px;
-        padding: 8px 10px;
-        color: #fff;
-        font-size: 13px;
-        outline: none;
-    }
-
-    .chatInputRow input:focus { border-color: #f5c842; }
-
-    .chatInputRow button {
-        background: #f5c842;
-        color: #000;
-        border: none;
-        border-radius: 6px;
-        padding: 8px 12px;
-        font-weight: bold;
-        cursor: pointer;
-    }
-
-    .controls {
-        background: #16213e;
-        border-top: 1px solid #0f3460;
-        padding: 12px 20px;
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        justify-content: center;
-    }
-
-    .ctrlBtn {
-        background: #0f3460;
-        color: #fff;
-        border: none;
-        border-radius: 999px;
-        padding: 10px 20px;
-        font-size: 14px;
-        cursor: pointer;
-        transition: background 0.2s;
-    }
-
-    .ctrlBtn:hover { background: #1a4a8a; }
-    .ctrlBtn.danger { background: #ff4444; }
-    .ctrlBtn.danger:hover { background: #ff6666; }
-    .ctrlBtn.muted { background: #333; color: #888; }
+.ctrl-bar { background:#16213e; border-top:1px solid #0f3460; padding:10px 20px; display:none; align-items:center; gap:10px; justify-content:center; flex-shrink:0; }
+.ctrl-bar.visible { display:flex; }
+.ctrl-btn { background:#0f3460; color:#fff; border:none; border-radius:999px; padding:8px 18px; font-size:13px; cursor:pointer; transition:background 0.2s; }
+.ctrl-btn:hover { background:#1a4a8a; }
+.ctrl-btn.muted { background:#333; color:#888; }
 </style>
 </head>
 <body>
 
-<!-- ═══ AUTH SCREEN ═══ -->
-<div id="authScreen">
+<!-- CONNECTING -->
+<div id="connectingScreen" class="screen active">
     <div class="logo">🐦</div>
-    <h1>Birdcord</h1>
-    <p>Where birds connect</p>
-    <div class="authBox">
-        <div class="tabRow">
-            <button class="tabBtn active" id="loginTab" onclick="switchTab('login')">🔑 Log In</button>
-            <button class="tabBtn" id="registerTab" onclick="switchTab('register')">✨ Create Account</button>
-        </div>
-        <input type="text" id="authUsername" placeholder="Username" maxlength="24" />
-        <input type="password" id="authPassword" placeholder="Password" />
-        <div id="authError"></div>
-        <div id="authSuccess"></div>
-        <button class="btnYellow" id="authSubmitBtn" onclick="handleAuth()">🐦 Log In</button>
-        <button class="devTestBtn" onclick="showDevTest()">🛠 Dev Test Mode</button>
-    </div>
+    <div style="font-size:22px;color:#f5c842;margin-bottom:6px;">Birdcord</div>
+    <div style="color:#888;margin-bottom:16px;">Connecting to server...</div>
+    <div class="spinner"></div>
 </div>
 
-<!-- ═══ ROOM PASSWORD SCREEN ═══ -->
-<div id="roomScreen">
+<!-- SERVER DOWN -->
+<div id="downScreen" class="screen">
+    <div class="big-icon">🔌</div>
+    <div class="down-title">Cannot Connect to Servers</div>
+    <p class="down-text">Sorry! We cannot connect to the servers. The servers are either down or there's an error with the website.</p>
+    <button class="btn-retry" onclick="retryConnection()">🔄 Try Again</button>
+</div>
+
+<!-- HIGH TRAFFIC -->
+<div id="trafficScreen" class="screen">
+    <div class="big-icon">🚦</div>
+    <div class="traffic-title">High Traffic!</div>
+    <p class="down-text">Sorry! You cannot join the chat yet there's High Traffic taking up our RAM! Please wait until someone leaves and try again.</p>
+    <br>
+    <button class="btn-retry" onclick="showScreen('roomScreen')">← Back to Rooms</button>
+</div>
+
+<!-- USERNAME -->
+<div id="usernameScreen" class="screen">
     <div class="logo">🐦</div>
-    <h1 style="color:#f5c842; font-size:28px; margin-bottom:8px;">Join Room</h1>
-    <p style="color:#aaa; margin-bottom:24px;">Enter the room password to join</p>
-    <div class="authBox">
-        <input type="password" id="roomPassInput" placeholder="Room password" />
-        <div id="roomError" style="color:#ff6b6b; font-size:13px; text-align:center; display:none;"></div>
-        <button class="btnYellow" onclick="joinRoom()">🐦 Join Birdcord</button>
-        <button class="devTestBtn" onclick="backToAuth()">← Back</button>
+    <div class="title">Birdcord</div>
+    <div class="subtitle">Where birds connect</div>
+    <div class="card">
+        <input type="text" id="usernameInput" placeholder="Choose a username" maxlength="20" onkeydown="if(event.key==='Enter')submitUsername()" />
+        <div class="err" id="usernameErr"></div>
+        <button class="btn-primary" onclick="submitUsername()">🐦 Enter Birdcord</button>
     </div>
 </div>
 
-<!-- ═══ DEV TEST SCREEN ═══ -->
-<div id="devTestScreen">
-    <div class="devHeader">
-        <span>🛠</span>
-        <h2>Birdcord Dev Test</h2>
-        <span class="devBadge">DEV</span>
-        <div class="devStatus" id="devStatus">
-            <span></span> Disconnected
+<!-- ROOM SELECT -->
+<div id="roomScreen" class="screen">
+    <div style="font-size:22px;color:#f5c842;font-weight:bold;margin-bottom:6px;">👋 Hey, <span id="displayName"></span>!</div>
+    <div style="color:#888;font-size:13px;margin-bottom:20px;">Pick a chat room to join</div>
+    <div class="room-grid">
+        <div class="room-card" onclick="selectRoom('kids')">
+            <div class="room-icon">🧒</div>
+            <div class="room-info"><h3>Kid Chat</h3><p>Ages 12 and under • Chat filter on</p></div>
+            <span class="room-badge badge-kids">KIDS</span>
         </div>
-        <button class="leaveBtn" onclick="leaveDevTest()">✕ Leave</button>
-    </div>
-    <div id="devMessages"></div>
-    <div class="devInputRow">
-        <input type="text" id="devChatInput" placeholder="Type a message..." onkeydown="if(event.key==='Enter') sendDevMsg()" />
-        <button class="btnSend" onclick="sendDevMsg()">Send</button>
+        <div class="room-card" onclick="selectRoom('allages')">
+            <div class="room-icon">🌍</div>
+            <div class="room-info"><h3>All Ages Chat</h3><p>Everyone welcome • Chat filter on</p></div>
+            <span class="room-badge badge-all">ALL AGES</span>
+        </div>
+        <div class="room-card" onclick="selectRoom('adults')">
+            <div class="room-icon">🔞</div>
+            <div class="room-info"><h3>Adult Chat</h3><p>18+ only • No filter</p></div>
+            <span class="room-badge badge-adult">18+</span>
+        </div>
     </div>
 </div>
 
-<!-- ═══ MAIN APP ═══ -->
-<div id="appScreen">
-    <div class="appHeader">
-        <span>🐦</span>
-        <h2>Birdcord</h2>
-        <span class="userCount" id="userCount">1 bird online</span>
+<!-- VERIFY -->
+<div id="verifyScreen" class="screen">
+    <div class="card" style="width:380px;">
+        <div id="verifyTitle" style="font-size:20px;color:#f5c842;font-weight:bold;"></div>
+        <div id="verifyDesc" style="color:#aaa;font-size:13px;"></div>
+        <div id="verifyFields"></div>
+        <div class="err" id="verifyErr"></div>
+        <button class="btn-primary" onclick="submitVerify()">✅ Continue</button>
+        <button class="btn-secondary" onclick="showScreen('roomScreen')">← Back</button>
     </div>
-    <div class="appBody">
+</div>
+
+<!-- CHAT -->
+<div id="chatScreen" class="screen">
+    <div class="chat-header">
+        <span id="chatRoomName" style="font-size:17px;color:#f5c842;font-weight:bold;"></span>
+        <span class="user-count" id="chatUserCount">1 online</span>
+        <div class="mode-btns">
+            <button class="mode-btn active" id="modeText" onclick="switchMode('text')">💬 Text</button>
+            <button class="mode-btn" id="modeVoice" onclick="switchMode('voice')">🎤 Voice</button>
+            <button class="mode-btn" id="modeCamera" onclick="switchMode('camera')">📷 Camera</button>
+        </div>
+        <button class="btn-leave" onclick="leaveRoom()">Leave</button>
+    </div>
+    <div class="chat-body">
         <div id="videoGrid"></div>
-        <div id="chatSidebar">
-            <div class="chatHeader">💬 Chat</div>
+        <div id="voiceGrid"></div>
+        <div id="chatSidebar" class="full">
+            <div class="sidebar-header">💬 Messages</div>
             <div id="chatMessages"></div>
-            <div class="chatInputRow">
-                <input type="text" id="chatInput" placeholder="Say something..." onkeydown="if(event.key==='Enter') sendChat()" />
+            <div class="chat-input-row">
+                <input type="text" id="chatInput" placeholder="Say something..." maxlength="500" onkeydown="if(event.key==='Enter')sendChat()" />
                 <button onclick="sendChat()">➤</button>
             </div>
         </div>
     </div>
-    <div class="controls">
-        <button class="ctrlBtn" id="muteBtn" onclick="toggleMute()">🎤 Mute</button>
-        <button class="ctrlBtn" id="camBtn" onclick="toggleCam()">📷 Cam Off</button>
-        <button class="ctrlBtn danger" onclick="leaveCall()">📴 Leave</button>
+    <div class="ctrl-bar" id="ctrlBar">
+        <button class="ctrl-btn" id="muteBtn" onclick="toggleMute()">🎤 Mute</button>
+        <button class="ctrl-btn" id="camBtn" onclick="toggleCam()" style="display:none;">📷 Hide Cam</button>
     </div>
 </div>
 
 <script>
-const SERVER_HTTP = "https://birdcord-server.onrender.com";
-const SERVER_WS = "wss://birdcord-server.onrender.com";
-const DEV_PASSWORD = "dev_test2014";
+const HTTP = "https://birdcord-server.onrender.com";
+const WSS  = "wss://birdcord-server.onrender.com";
+const ROOM_NAMES = { kids:"🧒 Kid Chat", allages:"🌍 All Ages Chat", adults:"🔞 Adult Chat" };
 
-let ws = null;
-let myId = null;
-let myName = "";
-let localStream = null;
-let peers = {};
-let muted = false;
-let camOff = false;
-let currentTab = "login";
-let roomPassword = "";
+let ws=null, myId=null, myUsername="", myRoom="", pendingRoom="";
+let localStream=null, peers={}, muted=false, camOff=false, currentMode="text";
 
-// ═══ TAB SWITCHING ═══
-function switchTab(tab) {
-    currentTab = tab;
-    document.getElementById("loginTab").className = tab === "login" ? "tabBtn active" : "tabBtn";
-    document.getElementById("registerTab").className = tab === "register" ? "tabBtn active" : "tabBtn";
-    document.getElementById("authSubmitBtn").textContent = tab === "login" ? "🐦 Log In" : "✨ Create Account";
-    hideAuthMessages();
+// ── SCREENS ──────────────────────────────────────────
+function showScreen(id) {
+    document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));
+    document.getElementById(id).classList.add("active");
 }
 
-function hideAuthMessages() {
-    const err = document.getElementById("authError");
-    const suc = document.getElementById("authSuccess");
-    err.style.display = "none";
-    suc.style.display = "none";
+// ── CONNECTION ───────────────────────────────────────
+function connectServer() {
+    showScreen("connectingScreen");
+    const t = new WebSocket(WSS);
+    const timer = setTimeout(()=>{ t.close(); showScreen("downScreen"); }, 8000);
+    t.onopen  = ()=>{ clearTimeout(timer); t.close(); showScreen("usernameScreen"); };
+    t.onerror = ()=>{ clearTimeout(timer); showScreen("downScreen"); };
 }
+function retryConnection() { connectServer(); }
 
-function showAuthError(msg) {
-    const err = document.getElementById("authError");
-    err.textContent = "❌ " + msg;
-    err.style.display = "block";
-    document.getElementById("authSuccess").style.display = "none";
-}
-
-function showAuthSuccess(msg) {
-    const suc = document.getElementById("authSuccess");
-    suc.textContent = "✅ " + msg;
-    suc.style.display = "block";
-    document.getElementById("authError").style.display = "none";
-}
-
-// ═══ AUTH ═══
-async function handleAuth() {
-    const username = document.getElementById("authUsername").value.trim();
-    const password = document.getElementById("authPassword").value;
-
-    if (!username || !password) {
-        showAuthError("Fill in all fields!");
-        return;
-    }
-
-    const btn = document.getElementById("authSubmitBtn");
-    btn.textContent = "⏳ Please wait...";
-    btn.disabled = true;
-
+// ── USERNAME ─────────────────────────────────────────
+async function submitUsername() {
+    const val = document.getElementById("usernameInput").value.trim();
+    const err = document.getElementById("usernameErr");
+    err.style.display="none";
+    if (!val) { showErr(err,"Enter a username!"); return; }
     try {
-        const endpoint = currentTab === "login" ? "/login" : "/register";
-        const res = await fetch(SERVER_HTTP + endpoint, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ username, password })
-        });
-        const data = await res.json();
+        const r = await fetch(HTTP+"/check-username",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({username:val})});
+        const d = await r.json();
+        if (d.ok) { myUsername=val; document.getElementById("displayName").textContent=val; showScreen("roomScreen"); }
+        else if (d.highTraffic) showScreen("trafficScreen");
+        else showErr(err, d.message);
+    } catch { showErr(err,"Could not reach server!"); }
+}
 
-        if (data.success) {
-            if (currentTab === "register") {
-                showAuthSuccess(data.message + " Now log in!");
-                switchTab("login");
-            } else {
-                myName = data.username;
-                showRoomScreen();
-            }
-        } else {
-            showAuthError(data.message);
+// ── ROOMS ─────────────────────────────────────────────
+function selectRoom(room) {
+    pendingRoom = room;
+    if (room==="allages") { joinRoom(room); return; }
+    showVerify(room);
+}
+
+function showVerify(room) {
+    document.getElementById("verifyErr").style.display="none";
+    const today = new Date().toISOString().split("T")[0];
+    if (room==="kids") {
+        document.getElementById("verifyTitle").textContent="🧒 Kids Room Verification";
+        document.getElementById("verifyDesc").textContent="This room is for kids 12 and under.";
+        document.getElementById("verifyFields").innerHTML=`
+            <div class="verify-label">Your birthday:</div>
+            <input type="date" id="vBday" max="${today}" />
+            <div class="verify-label">What grade are you in?</div>
+            <select id="vGrade"><option value="">Select grade...</option>
+            <option>Kindergarten</option><option>1st Grade</option><option>2nd Grade</option>
+            <option>3rd Grade</option><option>4th Grade</option><option>5th Grade</option>
+            <option>6th Grade</option><option>7th Grade</option><option>8th Grade</option></select>
+            <div class="checkbox-row"><input type="checkbox" id="vParent"/><label for="vParent">A parent or guardian knows I'm here</label></div>`;
+    } else {
+        document.getElementById("verifyTitle").textContent="🔞 Adult Room Verification";
+        document.getElementById("verifyDesc").textContent="This room is for adults 18 and older.";
+        document.getElementById("verifyFields").innerHTML=`
+            <div class="verify-label">Your birthday:</div>
+            <input type="date" id="vBday" max="${today}" />
+            <div class="checkbox-row"><input type="checkbox" id="vAdult"/><label for="vAdult">I confirm I am 18 years or older</label></div>`;
+    }
+    showScreen("verifyScreen");
+}
+
+function calcAge(bday) {
+    const t=new Date(), b=new Date(bday);
+    let a=t.getFullYear()-b.getFullYear();
+    const m=t.getMonth()-b.getMonth();
+    if(m<0||(m===0&&t.getDate()<b.getDate())) a--;
+    return a;
+}
+
+function submitVerify() {
+    const err=document.getElementById("verifyErr");
+    err.style.display="none";
+    const bday=document.getElementById("vBday");
+    if(!bday||!bday.value){showErr(err,"Please enter your birthday!");return;}
+    const age=calcAge(bday.value);
+    if(pendingRoom==="kids"){
+        if(age>12){showErr(err,"This room is for ages 12 and under! Try All Ages Chat.");return;}
+        if(age<3){showErr(err,"Invalid birthday!");return;}
+        if(!document.getElementById("vGrade").value){showErr(err,"Please select your grade!");return;}
+        if(!document.getElementById("vParent").checked){showErr(err,"Please confirm a parent knows you're here!");return;}
+    } else {
+        if(age<18){showErr(err,"You must be 18 or older to enter this room!");return;}
+        if(!document.getElementById("vAdult").checked){showErr(err,"Please confirm you are 18 or older!");return;}
+    }
+    joinRoom(pendingRoom);
+}
+
+// ── JOIN & WEBSOCKET ──────────────────────────────────
+function joinRoom(room) {
+    showScreen("connectingScreen");
+    myRoom=room;
+    ws=new WebSocket(WSS);
+    ws.onopen=()=>ws.send(JSON.stringify({type:"join",username:myUsername,room}));
+    ws.onmessage=async(e)=>{
+        const msg=JSON.parse(e.data);
+        if(msg.type==="join"){
+            if(!msg.success){if(msg.highTraffic)showScreen("trafficScreen");else showScreen("roomScreen");return;}
+            myId=msg.userId; enterChat(room,msg.userCount); return;
         }
-    } catch {
-        showAuthError("Could not connect to server!");
-    }
-
-    btn.textContent = currentTab === "login" ? "🐦 Log In" : "✨ Create Account";
-    btn.disabled = false;
-}
-
-function showRoomScreen() {
-    document.getElementById("authScreen").style.display = "none";
-    document.getElementById("roomScreen").style.display = "flex";
-}
-
-function backToAuth() {
-    document.getElementById("roomScreen").style.display = "none";
-    document.getElementById("authScreen").style.display = "flex";
-}
-
-function joinRoom() {
-    const pass = document.getElementById("roomPassInput").value;
-    if (!pass) {
-        document.getElementById("roomError").style.display = "block";
-        document.getElementById("roomError").textContent = "Enter the room password!";
-        return;
-    }
-    roomPassword = pass;
-    document.getElementById("roomError").style.display = "none";
-    startApp();
-}
-
-// ═══ DEV TEST ═══
-function showDevTest() {
-    const pass = document.getElementById("authPassword").value;
-    if (pass !== DEV_PASSWORD) {
-        showAuthError("Wrong dev code! Use dev_test2014 as password.");
-        return;
-    }
-    myName = document.getElementById("authUsername").value.trim() || "DevUser";
-    document.getElementById("authScreen").style.display = "none";
-    document.getElementById("devTestScreen").style.display = "flex";
-    connectDevTest();
-}
-
-function connectDevTest() {
-    ws = new WebSocket(SERVER_WS);
-
-    ws.onopen = () => {
-        ws.send(JSON.stringify({ type: "auth", password: DEV_PASSWORD, name: myName + " [DEV]" }));
-    };
-
-    ws.onmessage = (e) => {
-        const msg = JSON.parse(e.data);
-        if (msg.type === "auth") {
-            if (msg.success) {
-                myId = msg.userId;
-                const st = document.getElementById("devStatus");
-                st.className = "devStatus connected";
-                st.innerHTML = '<span></span> Connected as ' + myName;
-                addDevMsg("SYSTEM", "✅ Connected! Send a message to test.");
-            } else {
-                addDevMsg("SYSTEM", "❌ Auth failed: " + msg.message);
+        if(msg.type==="user-list"){
+            for(const u of msg.users){
+                addVoiceAvatar(u.userId,u.username);
+                if(currentMode!=="text") await createPeer(u.userId,u.username,true);
             }
             return;
         }
-        if (msg.type === "chat") addDevMsg(msg.name, msg.message);
-        if (msg.type === "user-joined") addDevMsg("SYSTEM", "🐦 " + msg.name + " joined! (" + msg.userCount + " online)");
-        if (msg.type === "user-left") addDevMsg("SYSTEM", "👋 " + msg.name + " left. (" + msg.userCount + " online)");
+        if(msg.type==="user-joined"){addSys("🐦 "+msg.username+" joined!");updateCount(msg.userCount);addVoiceAvatar(msg.userId,msg.username);return;}
+        if(msg.type==="user-left"){addSys("👋 "+msg.username+" left.");updateCount(msg.userCount);removeVoiceAvatar(msg.userId);removeVideoCard(msg.userId);if(peers[msg.userId]){peers[msg.userId].close();delete peers[msg.userId];}return;}
+        if(msg.type==="chat"){addChatMsg(msg.username,msg.message,false);return;}
+        if(msg.type==="offer"){await handleOffer(msg);return;}
+        if(msg.type==="answer"){if(peers[msg.fromId])await peers[msg.fromId].setRemoteDescription(msg.sdp);return;}
+        if(msg.type==="ice-candidate"){if(peers[msg.fromId])await peers[msg.fromId].addIceCandidate(msg.candidate);return;}
     };
-
-    ws.onclose = () => {
-        const st = document.getElementById("devStatus");
-        st.className = "devStatus";
-        st.innerHTML = '<span></span> Disconnected';
-        addDevMsg("SYSTEM", "❌ Disconnected from server.");
-    };
-
-    ws.onerror = () => {
-        addDevMsg("SYSTEM", "❌ Connection error!");
-    };
+    ws.onclose=()=>{if(myId){showScreen("downScreen");myId=null;}};
+    ws.onerror=()=>showScreen("downScreen");
 }
 
-function addDevMsg(name, text) {
-    const container = document.getElementById("devMessages");
-    const div = document.createElement("div");
-    div.className = name === "SYSTEM" ? "devMsg system" : "devMsg";
-    const time = new Date().toLocaleTimeString();
-    div.innerHTML = `<span class="msgName">${name === "SYSTEM" ? "SYSTEM" : name}</span>${text}<span class="msgTime">${time}</span>`;
-    container.appendChild(div);
-    container.scrollTop = container.scrollHeight;
-    setTimeout(() => { if (div.parentNode) div.remove(); }, 5 * 60 * 1000);
+function enterChat(room,count){
+    document.getElementById("chatRoomName").textContent=ROOM_NAMES[room]||room;
+    document.getElementById("chatMessages").innerHTML="";
+    document.getElementById("videoGrid").innerHTML="";
+    document.getElementById("voiceGrid").innerHTML="";
+    updateCount(count); setMode("text");
+    showScreen("chatScreen");
+    addSys("✅ Joined "+ROOM_NAMES[room]+"!");
 }
 
-function sendDevMsg() {
-    const input = document.getElementById("devChatInput");
-    const text = input.value.trim();
-    if (!text || !ws || ws.readyState !== 1) return;
-    ws.send(JSON.stringify({ type: "chat", message: text }));
-    addDevMsg("You", text);
-    input.value = "";
+// ── CHAT ──────────────────────────────────────────────
+function sendChat(){
+    const input=document.getElementById("chatInput");
+    const text=input.value.trim();
+    if(!text||!ws||ws.readyState!==1)return;
+    ws.send(JSON.stringify({type:"chat",message:text}));
+    addChatMsg("You",text,true); // add locally — server excludes sender so no duplicate
+    input.value="";
 }
 
-function leaveDevTest() {
-    if (ws) ws.close();
-    document.getElementById("devTestScreen").style.display = "none";
-    document.getElementById("authScreen").style.display = "flex";
+function addChatMsg(name,text,isMe){
+    const c=document.getElementById("chatMessages");
+    const d=document.createElement("div");
+    d.className="chat-msg"+(isMe?" mine":"");
+    d.innerHTML=`<span class="msg-name">${esc(name)}</span>${esc(text)}`;
+    c.appendChild(d); c.scrollTop=c.scrollHeight;
+    setTimeout(()=>{if(d.parentNode)d.remove();},5*60*1000);
 }
 
-// ═══ MAIN APP ═══
-async function startApp() {
-    document.getElementById("roomScreen").style.display = "none";
-    document.getElementById("appScreen").style.display = "flex";
+function addSys(text){
+    const c=document.getElementById("chatMessages");
+    const d=document.createElement("div");
+    d.className="chat-msg system"; d.textContent=text;
+    c.appendChild(d); c.scrollTop=c.scrollHeight;
+    setTimeout(()=>{if(d.parentNode)d.remove();},5*60*1000);
+}
 
-    try {
-        localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
-    } catch {
-        try {
-            localStream = await navigator.mediaDevices.getUserMedia({ video: false, audio: true });
-        } catch {
-            alert("Could not access camera or microphone!");
-            leaveCall();
-            return;
+function updateCount(n){document.getElementById("chatUserCount").textContent=n+" online";}
+function esc(t){return t.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");}
+
+// ── MODES ─────────────────────────────────────────────
+async function switchMode(mode){
+    if(mode===currentMode)return;
+    if(localStream){localStream.getTracks().forEach(t=>t.stop());localStream=null;}
+    for(const id in peers){peers[id].close();} peers={};
+    removeVideoCard("local");
+    setMode(mode);
+    if(ws)ws.send(JSON.stringify({type:"mode",mode}));
+    if(mode==="voice"){
+        try{localStream=await navigator.mediaDevices.getUserMedia({audio:true,video:false});}
+        catch{addSys("❌ Could not access microphone!");setMode("text");return;}
+        addVoiceAvatar("local",myUsername+" (You)");
+        for(const el of document.querySelectorAll(".voice-avatar:not([data-id='local'])")){
+            await createPeer(parseInt(el.dataset.id),el.querySelector(".av-name").textContent,true);
+        }
+    } else if(mode==="camera"){
+        try{localStream=await navigator.mediaDevices.getUserMedia({audio:true,video:true});}
+        catch{try{localStream=await navigator.mediaDevices.getUserMedia({audio:true,video:false});}catch{addSys("❌ Could not access camera/mic!");setMode("text");return;}}
+        addVideoCard("local",myUsername+" (You)",localStream,true);
+        for(const el of document.querySelectorAll(".voice-avatar:not([data-id='local'])")){
+            await createPeer(parseInt(el.dataset.id),el.querySelector(".av-name").textContent,true);
         }
     }
-
-    addVideoCard("local", myName + " (You)", localStream, true);
-
-    ws = new WebSocket(SERVER_WS);
-
-    ws.onopen = () => {
-        ws.send(JSON.stringify({ type: "auth", password: roomPassword, name: myName }));
-    };
-
-    ws.onmessage = async (e) => {
-        const msg = JSON.parse(e.data);
-
-        if (msg.type === "auth") {
-            if (!msg.success) { alert("Wrong room password!"); leaveCall(); return; }
-            myId = msg.userId;
-            return;
-        }
-        if (msg.type === "user-list") {
-            for (const user of msg.users) await createPeer(user.userId, user.name, true);
-            return;
-        }
-        if (msg.type === "user-joined") {
-            addChatMsg("🐦 " + msg.name + " joined!", true);
-            updateCount(msg.userCount);
-            return;
-        }
-        if (msg.type === "user-left") {
-            addChatMsg("👋 " + msg.name + " left.", true);
-            updateCount(msg.userCount);
-            removeVideoCard(msg.userId);
-            if (peers[msg.userId]) { peers[msg.userId].close(); delete peers[msg.userId]; }
-            return;
-        }
-        if (msg.type === "offer") { await handleOffer(msg); return; }
-        if (msg.type === "answer") {
-            if (peers[msg.fromId]) await peers[msg.fromId].setRemoteDescription(msg.sdp);
-            return;
-        }
-        if (msg.type === "ice-candidate") {
-            if (peers[msg.fromId]) await peers[msg.fromId].addIceCandidate(msg.candidate);
-            return;
-        }
-        if (msg.type === "chat") {
-            addChatMsg(msg.name + ": " + msg.message, false);
-            return;
-        }
-    };
 }
 
-async function createPeer(targetId, targetName, initiator) {
-    const pc = new RTCPeerConnection({ iceServers: [{ urls: "stun:stun.l.google.com:19302" }] });
-    peers[targetId] = pc;
-    localStream.getTracks().forEach(track => pc.addTrack(track, localStream));
-    pc.ontrack = (e) => addVideoCard(targetId, targetName, e.streams[0], false);
-    pc.onicecandidate = (e) => {
-        if (e.candidate) ws.send(JSON.stringify({ type: "ice-candidate", targetId, candidate: e.candidate }));
-    };
-    if (initiator) {
-        const offer = await pc.createOffer();
-        await pc.setLocalDescription(offer);
-        ws.send(JSON.stringify({ type: "offer", targetId, sdp: pc.localDescription }));
-    }
+function setMode(mode){
+    currentMode=mode;
+    ["modeText","modeVoice","modeCamera"].forEach(id=>document.getElementById(id).classList.remove("active"));
+    document.getElementById("modeText").classList.toggle("active",mode==="text");
+    document.getElementById("modeVoice").classList.toggle("active",mode==="voice");
+    document.getElementById("modeCamera").classList.toggle("active",mode==="camera");
+    document.getElementById("videoGrid").classList.toggle("visible",mode==="camera");
+    document.getElementById("voiceGrid").classList.toggle("visible",mode==="voice");
+    document.getElementById("ctrlBar").classList.toggle("visible",mode!=="text");
+    document.getElementById("chatSidebar").classList.toggle("full",mode==="text");
+    document.getElementById("camBtn").style.display=mode==="camera"?"block":"none";
+}
+
+// ── VOICE AVATARS ─────────────────────────────────────
+function addVoiceAvatar(id,name){
+    if(document.querySelector(`.voice-avatar[data-id='${id}']`))return;
+    const d=document.createElement("div");
+    d.className="voice-avatar"; d.dataset.id=id;
+    d.innerHTML=`<div class="av-icon">🐦</div><div class="av-name">${esc(String(name))}</div>`;
+    document.getElementById("voiceGrid").appendChild(d);
+}
+function removeVoiceAvatar(id){const e=document.querySelector(`.voice-avatar[data-id='${id}']`);if(e)e.remove();}
+
+// ── VIDEO CARDS ───────────────────────────────────────
+function addVideoCard(id,name,stream,isLocal){
+    if(document.getElementById("vid-"+id))return;
+    const card=document.createElement("div");
+    card.className="video-card"+(isLocal?" local":""); card.id="vid-"+id;
+    const v=document.createElement("video");
+    v.autoplay=true; v.playsInline=true; if(isLocal)v.muted=true; v.srcObject=stream;
+    const tag=document.createElement("div"); tag.className="name-tag"; tag.textContent=name;
+    card.appendChild(v); card.appendChild(tag);
+    document.getElementById("videoGrid").appendChild(card);
+}
+function removeVideoCard(id){const e=document.getElementById("vid-"+id);if(e)e.remove();}
+
+// ── WEBRTC ────────────────────────────────────────────
+async function createPeer(targetId,targetName,initiator){
+    const pc=new RTCPeerConnection({iceServers:[{urls:"stun:stun.l.google.com:19302"}]});
+    peers[targetId]=pc;
+    if(localStream)localStream.getTracks().forEach(t=>pc.addTrack(t,localStream));
+    pc.ontrack=(e)=>{if(currentMode==="camera")addVideoCard(targetId,targetName,e.streams[0],false);};
+    pc.onicecandidate=(e)=>{if(e.candidate&&ws)ws.send(JSON.stringify({type:"ice-candidate",targetId,candidate:e.candidate}));};
+    if(initiator){const o=await pc.createOffer();await pc.setLocalDescription(o);ws.send(JSON.stringify({type:"offer",targetId,sdp:pc.localDescription}));}
     return pc;
 }
-
-async function handleOffer(msg) {
-    const pc = await createPeer(msg.fromId, "Bird " + msg.fromId, false);
+async function handleOffer(msg){
+    const pc=await createPeer(msg.fromId,"Bird "+msg.fromId,false);
     await pc.setRemoteDescription(msg.sdp);
-    const answer = await pc.createAnswer();
-    await pc.setLocalDescription(answer);
-    ws.send(JSON.stringify({ type: "answer", targetId: msg.fromId, sdp: pc.localDescription }));
+    const a=await pc.createAnswer(); await pc.setLocalDescription(a);
+    ws.send(JSON.stringify({type:"answer",targetId:msg.fromId,sdp:pc.localDescription}));
 }
 
-function addVideoCard(id, name, stream, isLocal) {
-    const grid = document.getElementById("videoGrid");
-    if (document.getElementById("vid-" + id)) return;
-    const card = document.createElement("div");
-    card.className = "videoCard" + (isLocal ? " local" : "");
-    card.id = "vid-" + id;
-    const video = document.createElement("video");
-    video.autoplay = true;
-    video.playsInline = true;
-    if (isLocal) video.muted = true;
-    video.srcObject = stream;
-    const tag = document.createElement("div");
-    tag.className = "nameTag";
-    tag.textContent = name;
-    card.appendChild(video);
-    card.appendChild(tag);
-    grid.appendChild(card);
+// ── CONTROLS ──────────────────────────────────────────
+function toggleMute(){muted=!muted;if(localStream)localStream.getAudioTracks().forEach(t=>t.enabled=!muted);document.getElementById("muteBtn").textContent=muted?"🔇 Unmute":"🎤 Mute";document.getElementById("muteBtn").className=muted?"ctrl-btn muted":"ctrl-btn";}
+function toggleCam(){camOff=!camOff;if(localStream)localStream.getVideoTracks().forEach(t=>t.enabled=!camOff);document.getElementById("camBtn").textContent=camOff?"📷 Show Cam":"📷 Hide Cam";document.getElementById("camBtn").className=camOff?"ctrl-btn muted":"ctrl-btn";}
+
+function leaveRoom(){
+    if(ws){ws.onclose=null;ws.close();ws=null;}
+    if(localStream){localStream.getTracks().forEach(t=>t.stop());localStream=null;}
+    for(const id in peers){peers[id].close();} peers={};
+    myId=null; myRoom=""; setMode("text");
+    document.getElementById("videoGrid").innerHTML="";
+    document.getElementById("voiceGrid").innerHTML="";
+    showScreen("roomScreen");
 }
 
-function removeVideoCard(id) {
-    const card = document.getElementById("vid-" + id);
-    if (card) card.remove();
-}
+function showErr(el,msg){el.textContent="❌ "+msg;el.style.display="block";}
 
-function addChatMsg(text, isSystem) {
-    const container = document.getElementById("chatMessages");
-    const div = document.createElement("div");
-    div.className = isSystem ? "chatMsg system" : "chatMsg";
-    div.textContent = text;
-    container.appendChild(div);
-    container.scrollTop = container.scrollHeight;
-    setTimeout(() => { if (div.parentNode) div.remove(); }, 5 * 60 * 1000);
-}
-
-function sendChat() {
-    const input = document.getElementById("chatInput");
-    const text = input.value.trim();
-    if (!text || !ws || ws.readyState !== 1) return;
-    ws.send(JSON.stringify({ type: "chat", message: text }));
-    addChatMsg("You: " + text, false);
-    input.value = "";
-}
-
-function updateCount(n) {
-    document.getElementById("userCount").textContent = n + (n === 1 ? " bird" : " birds") + " online";
-}
-
-function toggleMute() {
-    muted = !muted;
-    localStream.getAudioTracks().forEach(t => t.enabled = !muted);
-    document.getElementById("muteBtn").textContent = muted ? "🔇 Unmute" : "🎤 Mute";
-    document.getElementById("muteBtn").className = muted ? "ctrlBtn muted" : "ctrlBtn";
-}
-
-function toggleCam() {
-    camOff = !camOff;
-    localStream.getVideoTracks().forEach(t => t.enabled = !camOff);
-    document.getElementById("camBtn").textContent = camOff ? "📷 Cam On" : "📷 Cam Off";
-    document.getElementById("camBtn").className = camOff ? "ctrlBtn muted" : "ctrlBtn";
-}
-
-function leaveCall() {
-    if (ws) ws.close();
-    if (localStream) localStream.getTracks().forEach(t => t.stop());
-    document.getElementById("appScreen").style.display = "none";
-    document.getElementById("authScreen").style.display = "flex";
-    document.getElementById("videoGrid").innerHTML = "";
-    document.getElementById("chatMessages").innerHTML = "";
-    peers = {};
-    localStream = null;
-}
+window.onload=()=>connectServer();
 </script>
 </body>
 </html>
